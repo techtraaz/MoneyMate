@@ -2,7 +2,9 @@ package com.example.moneymate
 
 
 
+import android.content.Intent
 import android.os.Bundle
+import android.widget.Button
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
@@ -19,6 +21,7 @@ class Activity3 : AppCompatActivity() {
     private lateinit var recyclerView: RecyclerView
     private lateinit var adapter: TransactionAdapter
     private lateinit var storage: TransactionStorage
+    private lateinit var addbtn: Button
 
     private var calendar = Calendar.getInstance()
 
@@ -30,7 +33,7 @@ class Activity3 : AppCompatActivity() {
         btnPrev = findViewById(R.id.btnPrev)
         btnNext = findViewById(R.id.btnNext)
         recyclerView = findViewById(R.id.recyclerView)
-
+        addbtn = findViewById(R.id.btnAddTransaction)
         recyclerView.layoutManager = LinearLayoutManager(this)
         storage = TransactionStorage(this)
 
@@ -47,6 +50,11 @@ class Activity3 : AppCompatActivity() {
             calendar.add(Calendar.MONTH, 1)
             updateMonthYear()
         }
+
+        addbtn.setOnClickListener {
+            startActivity(Intent(this, ActivityAdd::class.java))
+        }
+
     }
 
     private fun updateMonthYear() {
