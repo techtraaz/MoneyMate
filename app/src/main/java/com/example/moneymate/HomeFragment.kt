@@ -2,16 +2,15 @@ package com.example.moneymate
 
 import android.content.Intent
 import android.os.Bundle
-import android.widget.Button
-import android.widget.ImageView
-import android.widget.TextView
-import androidx.appcompat.app.AppCompatActivity
+import android.view.*
+import android.widget.*
+import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import java.text.SimpleDateFormat
 import java.util.*
 
-class Activity3 : AppCompatActivity() {
+class HomeFragment : Fragment() {
 
     private lateinit var txtMonthYear: TextView
     private lateinit var btnPrev: ImageView
@@ -23,17 +22,24 @@ class Activity3 : AppCompatActivity() {
 
     private var calendar = Calendar.getInstance()
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_3)
+    override fun onCreateView(
+        inflater: LayoutInflater, container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
+        return inflater.inflate(R.layout.activity_3, container, false)
+    }
 
-        txtMonthYear = findViewById(R.id.txtMonthYear)
-        btnPrev = findViewById(R.id.btnPrev)
-        btnNext = findViewById(R.id.btnNext)
-        recyclerView = findViewById(R.id.recyclerView)
-        addbtn = findViewById(R.id.btnAddTransaction)
-        recyclerView.layoutManager = LinearLayoutManager(this)
-        storage = TransactionStorage(this)
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
+        txtMonthYear = view.findViewById(R.id.txtMonthYear)
+        btnPrev = view.findViewById(R.id.btnPrev)
+        btnNext = view.findViewById(R.id.btnNext)
+        recyclerView = view.findViewById(R.id.recyclerView)
+        addbtn = view.findViewById(R.id.btnAddTransaction)
+
+        recyclerView.layoutManager = LinearLayoutManager(requireContext())
+        storage = TransactionStorage(requireContext())
 
         btnPrev.setOnClickListener {
             calendar.add(Calendar.MONTH, -1)
@@ -46,8 +52,14 @@ class Activity3 : AppCompatActivity() {
         }
 
         addbtn.setOnClickListener {
-            startActivity(Intent(this, ActivityAdd::class.java))
+            val fragment = AddFragment()
+            parentFragmentManager.beginTransaction()
+                .replace(R.id.nav_host_fragment, fragment)
+                .addToBackStack(null)
+                .commit()
         }
+
+        updateMonthYear()
     }
 
     override fun onResume() {
@@ -79,14 +91,19 @@ class Activity3 : AppCompatActivity() {
                 updateTransactionList()
             },
             onUpdateClick = { transactionToEdit ->
-                val intent = Intent(this, ActivityAdd::class.java).apply {
-                    putExtra("id", transactionToEdit.id)
-                    putExtra("category", transactionToEdit.category)
-                    putExtra("amount", transactionToEdit.amount)
-                    putExtra("date", transactionToEdit.date)
-                    putExtra("type", transactionToEdit.type)
+                val fragment = AddFragment().apply {
+                    arguments = Bundle().apply {
+                        putInt("id", transactionToEdit.id)
+                        putDouble("amount", transactionToEdit.amount)
+                        putString("date", transactionToEdit.date)
+                        putString("category", transactionToEdit.category)
+                        putString("type", transactionToEdit.type)
+                    }
                 }
-                startActivity(intent)
+                parentFragmentManager.beginTransaction()
+                    .replace(R.id.nav_host_fragment, fragment)
+                    .addToBackStack(null)
+                    .commit()
             }
         )
 

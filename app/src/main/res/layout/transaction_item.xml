@@ -27,6 +27,22 @@
         android:text="Rs. 150.0"
         android:textColor="@color/black"/>
 
+    <Button
+        android:id="@+id/btnUpdate"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Update" />
+
+
+    <ImageView
+        android:id="@+id/btnDelete"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@android:drawable/ic_delete"
+        android:contentDescription="Delete"
+        android:padding="8dp"
+        android:tint="@android:color/holo_red_dark"/>
+
 
 
 </LinearLayout>

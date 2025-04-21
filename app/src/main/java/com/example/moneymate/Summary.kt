@@ -1,39 +1,42 @@
 package com.example.moneymate
 
-import android.content.Intent
 import android.os.Bundle
-import android.widget.Button
-import android.widget.ImageView
-import android.widget.TextView
+import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import java.text.SimpleDateFormat
 import java.util.*
 
-class Activity3 : AppCompatActivity() {
+class Summary : AppCompatActivity() {
 
     private lateinit var txtMonthYear: TextView
     private lateinit var btnPrev: ImageView
     private lateinit var btnNext: ImageView
-    private lateinit var recyclerView: RecyclerView
-    private lateinit var adapter: TransactionAdapter
+
+    private lateinit var txtIncomeSummary: TextView
+    private lateinit var txtExpenseSummary: TextView
+
     private lateinit var storage: TransactionStorage
-    private lateinit var addbtn: Button
 
     private var calendar = Calendar.getInstance()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_3)
+        setContentView(R.layout.activity_summary)
 
+        // Initialize views
         txtMonthYear = findViewById(R.id.txtMonthYear)
         btnPrev = findViewById(R.id.btnPrev)
         btnNext = findViewById(R.id.btnNext)
-        recyclerView = findViewById(R.id.recyclerView)
-        addbtn = findViewById(R.id.btnAddTransaction)
-        recyclerView.layoutManager = LinearLayoutManager(this)
+
+        txtIncomeSummary = findViewById(R.id.txtIncomeSummary)
+        txtExpenseSummary = findViewById(R.id.txtExpenseSummary)
+
+
         storage = TransactionStorage(this)
+
+        updateMonthYear()
 
         btnPrev.setOnClickListener {
             calendar.add(Calendar.MONTH, -1)
@@ -44,15 +47,6 @@ class Activity3 : AppCompatActivity() {
             calendar.add(Calendar.MONTH, 1)
             updateMonthYear()
         }
-
-        addbtn.setOnClickListener {
-            startActivity(Intent(this, ActivityAdd::class.java))
-        }
-    }
-
-    override fun onResume() {
-        super.onResume()
-        updateMonthYear()
     }
 
     private fun updateMonthYear() {
@@ -72,24 +66,31 @@ class Activity3 : AppCompatActivity() {
             SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).parse(it.date)
         }
 
-        adapter = TransactionAdapter(
-            filtered,
-            onDeleteClick = { transactionToDelete ->
-                storage.deleteTransactionById(transactionToDelete.id)
-                updateTransactionList()
-            },
-            onUpdateClick = { transactionToEdit ->
-                val intent = Intent(this, ActivityAdd::class.java).apply {
-                    putExtra("id", transactionToEdit.id)
-                    putExtra("category", transactionToEdit.category)
-                    putExtra("amount", transactionToEdit.amount)
-                    putExtra("date", transactionToEdit.date)
-                    putExtra("type", transactionToEdit.type)
-                }
-                startActivity(intent)
-            }
-        )
+        // Update category summary
+        updateCategorySummary(filtered)
+    }
 
-        recyclerView.adapter = adapter
+    private fun updateCategorySummary(transactions: List<Transaction>) {
+        val incomeTransactions = transactions.filter { it.type == "Income" }
+        val expenseTransactions = transactions.filter { it.type == "Expense" }
+
+        val incomeSummary = incomeTransactions.groupBy { it.category }
+            .mapValues { it.value.sumOf { t -> t.amount } }
+        val expenseSummary = expenseTransactions.groupBy { it.category }
+            .mapValues { it.value.sumOf { t -> t.amount } }
+
+        // Show income summary
+        if (incomeSummary.isNotEmpty()) {
+            txtIncomeSummary.text = "Income Summary:\n" + incomeSummary.entries.joinToString("\n") { "${it.key}: ${it.value}" }
+        } else {
+            txtIncomeSummary.text = "No income records"
+        }
+
+        // Show expense summary
+        if (expenseSummary.isNotEmpty()) {
+            txtExpenseSummary.text = "Expense Summary:\n" + expenseSummary.entries.joinToString("\n") { "${it.key}: ${it.value}" }
+        } else {
+            txtExpenseSummary.text = "No expense records"
+        }
     }
 }

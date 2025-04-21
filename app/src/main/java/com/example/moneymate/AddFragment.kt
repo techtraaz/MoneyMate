@@ -1,13 +1,14 @@
 package com.example.moneymate
 
 import android.app.DatePickerDialog
-import android.content.Intent
 import android.os.Bundle
+import android.view.*
 import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
+import androidx.fragment.app.Fragment
 import java.util.*
 
-class ActivityAdd : AppCompatActivity() {
+class AddFragment : Fragment() {
 
     private lateinit var etAmount: EditText
     private lateinit var etDate: EditText
@@ -23,62 +24,67 @@ class ActivityAdd : AppCompatActivity() {
     private var selectedDate = ""
     private var editingId = -1
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_add)
+    override fun onCreateView(
+        inflater: LayoutInflater, container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
+        return inflater.inflate(R.layout.activity_add, container, false)
+    }
 
-        etAmount = findViewById(R.id.etAmount)
-        etDate = findViewById(R.id.etDate)
-        radioIncome = findViewById(R.id.radioIncome)
-        radioExpense = findViewById(R.id.radioExpense)
-        spinnerCategory = findViewById(R.id.spinnerCategory)
-        btnSave = findViewById(R.id.btnSaveTransaction)
-        btnBackToList = findViewById(R.id.btnBackToList)
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
 
-        val storage = TransactionStorage(this)
+        etAmount = view.findViewById(R.id.etAmount)
+        etDate = view.findViewById(R.id.etDate)
+        radioIncome = view.findViewById(R.id.radioIncome)
+        radioExpense = view.findViewById(R.id.radioExpense)
+        spinnerCategory = view.findViewById(R.id.spinnerCategory)
+        btnSave = view.findViewById(R.id.btnSaveTransaction)
+        btnBackToList = view.findViewById(R.id.btnBackToList)
 
-        // Handle edit mode
-        editingId = intent.getIntExtra("id", -1)
-        val editingAmount = intent.getDoubleExtra("amount", 0.0)
-        val editingDate = intent.getStringExtra("date")
-        val editingType = intent.getStringExtra("type")
-        val editingCategory = intent.getStringExtra("category")
+        val storage = TransactionStorage(requireContext())
 
-        if (editingId != -1) {
-            etAmount.setText(editingAmount.toString())
-            etDate.setText(editingDate)
-            selectedDate = editingDate ?: ""
+        arguments?.let {
+            editingId = it.getInt("id", -1)
+            val editingAmount = it.getDouble("amount", 0.0)
+            val editingDate = it.getString("date")
+            val editingType = it.getString("type")
+            val editingCategory = it.getString("category")
 
-            if (editingType == "Income") {
-                radioIncome.isChecked = true
-                setCategoryAdapter(incomeCategories)
+            if (editingId != -1) {
+                etAmount.setText(editingAmount.toString())
+                etDate.setText(editingDate)
+                selectedDate = editingDate ?: ""
+
+                if (editingType == "Income") {
+                    radioIncome.isChecked = true
+                    setCategoryAdapter(incomeCategories)
+                } else {
+                    radioExpense.isChecked = true
+                    setCategoryAdapter(expenseCategories)
+                }
+
+                spinnerCategory.post {
+                    val index = (spinnerCategory.adapter as ArrayAdapter<String>).getPosition(editingCategory)
+                    spinnerCategory.setSelection(index)
+                }
+
+                btnSave.text = "Update Transaction"
             } else {
-                radioExpense.isChecked = true
-                setCategoryAdapter(expenseCategories)
+                setCategoryAdapter(listOf("Select category"))
             }
-
-            // Set spinner category after adapter has been set
-            spinnerCategory.post {
-                val index = (spinnerCategory.adapter as ArrayAdapter<String>).getPosition(editingCategory)
-                spinnerCategory.setSelection(index)
-            }
-
-            btnSave.text = "Update Transaction"
-        } else {
-            setCategoryAdapter(listOf("Select category")) // Initially empty
         }
 
         etDate.setOnClickListener {
             val calendar = Calendar.getInstance()
-            val datePicker = DatePickerDialog(this, { _, y, m, d ->
+            val datePicker = DatePickerDialog(requireContext(), { _, y, m, d ->
                 selectedDate = String.format("%04d-%02d-%02d", y, m + 1, d)
                 etDate.setText(selectedDate)
             }, calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH), calendar.get(Calendar.DAY_OF_MONTH))
             datePicker.show()
         }
 
-        val radioGroup = findViewById<RadioGroup>(R.id.radioTypeGroup)
-        radioGroup.setOnCheckedChangeListener { _, checkedId ->
+        view.findViewById<RadioGroup>(R.id.radioTypeGroup).setOnCheckedChangeListener { _, checkedId ->
             if (checkedId == R.id.radioIncome) {
                 setCategoryAdapter(incomeCategories)
             } else if (checkedId == R.id.radioExpense) {
@@ -96,7 +102,7 @@ class ActivityAdd : AppCompatActivity() {
             val category = spinnerCategory.selectedItem?.toString() ?: ""
 
             if (amount == null || selectedDate.isEmpty() || type.isEmpty() || category == "Select category") {
-                Toast.makeText(this, "Please fill in all fields", Toast.LENGTH_SHORT).show()
+                Toast.makeText(requireContext(), "Please fill in all fields", Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
 
@@ -123,26 +129,22 @@ class ActivityAdd : AppCompatActivity() {
 
             storage.saveTransactions(transactions)
 
-            Toast.makeText(this, "Transaction saved!", Toast.LENGTH_SHORT).show()
-
-            val intent = Intent(this, Activity3::class.java)
-            intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK
-            startActivity(intent)
-            finish()
+            Toast.makeText(requireContext(), "Transaction saved!", Toast.LENGTH_SHORT).show()
+            parentFragmentManager.popBackStack()
         }
 
         btnBackToList.setOnClickListener {
-            startActivity(Intent(this, Activity3::class.java))
+            parentFragmentManager.popBackStack()
         }
     }
 
     private fun setCategoryAdapter(categories: List<String>) {
-        val adapter = ArrayAdapter(this, android.R.layout.simple_spinner_dropdown_item, categories)
+        val adapter = ArrayAdapter(requireContext(), android.R.layout.simple_spinner_dropdown_item, categories)
         spinnerCategory.adapter = adapter
     }
 
     private fun getNextId(): Int {
-        val prefs = getSharedPreferences("idPrefs", MODE_PRIVATE)
+        val prefs = requireContext().getSharedPreferences("idPrefs", AppCompatActivity.MODE_PRIVATE)
         val currentId = prefs.getInt("transaction_id", 0)
         prefs.edit().putInt("transaction_id", currentId + 1).apply()
         return currentId + 1

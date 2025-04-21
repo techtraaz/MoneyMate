@@ -13,6 +13,12 @@
         android:theme="@style/Theme.MoneyMate"
         tools:targetApi="31">
         <activity
+            android:name=".Activity3"
+            android:exported="false" />
+        <activity
+            android:name=".Summary"
+            android:exported="false" />
+        <activity
             android:name=".Progress"
             android:exported="false" />
         <activity
@@ -22,7 +28,7 @@
             android:name=".Activity2"
             android:exported="false" />
         <activity
-            android:name=".Activity3"
+            android:name=".MainNav"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
