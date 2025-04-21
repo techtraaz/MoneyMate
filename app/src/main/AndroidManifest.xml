@@ -13,6 +13,9 @@
         android:theme="@style/Theme.MoneyMate"
         tools:targetApi="31">
         <activity
+            android:name=".Progress"
+            android:exported="false" />
+        <activity
             android:name=".ActivityAdd"
             android:exported="false" />
         <activity

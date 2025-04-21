@@ -37,7 +37,7 @@ class Activity3 : AppCompatActivity() {
         recyclerView.layoutManager = LinearLayoutManager(this)
         storage = TransactionStorage(this)
 
-        loadDummyDataIfNeeded()
+
 
         updateMonthYear()
 
@@ -78,19 +78,7 @@ class Activity3 : AppCompatActivity() {
         recyclerView.adapter = adapter
     }
 
-    private fun loadDummyDataIfNeeded() {
-        if (storage.getTransactions().isEmpty()) {
-            val dummy = listOf(
-                Transaction("Income", "Salary", 3000.0, "2025-04-05"),
-                Transaction("Expense", "Groceries", 150.0, "2025-04-10"),
-                Transaction("Income", "Freelance", 1200.0, "2025-04-15"),
-                Transaction("Expense", "Rent", 1000.0, "2025-04-01"),
-                Transaction("Expense", "Rent", 1000.0, "2025-03-01"),
-                Transaction("Expense", "Rent", 1000.0, "2025-03-01")
-            )
-            storage.saveTransactions(dummy)
-        }
-    }
+
 }
 
 
