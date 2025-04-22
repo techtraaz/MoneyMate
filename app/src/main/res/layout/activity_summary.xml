@@ -61,6 +61,7 @@
 
     <TextView
         android:id="@+id/txtExpenseSummary"
+
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
@@ -68,8 +69,9 @@
         android:layout_marginEnd="16dp"
         android:text=""
         android:textColor="@color/black"
-        android:textSize="20sp"
+        android:textSize="14sp"
         android:textStyle="bold"
+        android:visibility="gone"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
@@ -77,15 +79,17 @@
 
     <TextView
         android:id="@+id/txtExpenseSummary2"
+
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
-        android:layout_marginTop="164dp"
+        android:layout_marginTop="174dp"
         android:layout_marginEnd="16dp"
         android:text="Expense Summary"
         android:textColor="@color/expense"
         android:textSize="20sp"
         android:textStyle="bold"
+        android:visibility="gone"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="1.0"
         app:layout_constraintStart_toStartOf="parent"
@@ -100,8 +104,10 @@
         android:layout_marginEnd="16dp"
         android:text="Income Summary"
         android:textColor="@color/income"
+
         android:textSize="20sp"
         android:textStyle="bold"
+        android:visibility="gone"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
@@ -109,6 +115,7 @@
 
     <TextView
         android:id="@+id/txtIncomeSummary"
+
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
@@ -116,11 +123,32 @@
         android:layout_marginEnd="16dp"
         android:text=""
         android:textColor="@color/black"
-        android:textSize="20sp"
+        android:textSize="14sp"
         android:textStyle="bold"
+        android:visibility="gone"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/linearLayout" />
+
+    <com.github.mikephil.charting.charts.PieChart
+        android:id="@+id/incomeChart"
+        android:layout_width="280dp"
+        android:layout_height="280dp"
+        app:layout_constraintBottom_toTopOf="@+id/expenseChart"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/linearLayout" />
+
+    <com.github.mikephil.charting.charts.PieChart
+        android:id="@+id/expenseChart"
+        android:layout_width="280dp"
+        android:layout_height="280dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.503"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/incomeChart" />
+
 
 </androidx.constraintlayout.widget.ConstraintLayout>
