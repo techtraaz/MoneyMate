@@ -31,7 +31,7 @@ class Activity3 : AppCompatActivity() {
         btnPrev = findViewById(R.id.btnPrev)
         btnNext = findViewById(R.id.btnNext)
         recyclerView = findViewById(R.id.recyclerView)
-        addbtn = findViewById(R.id.btnAddTransaction)
+
         recyclerView.layoutManager = LinearLayoutManager(this)
         storage = TransactionStorage(this)
 
@@ -73,6 +73,7 @@ class Activity3 : AppCompatActivity() {
         }
 
         adapter = TransactionAdapter(
+            this, // context
             filtered,
             onDeleteClick = { transactionToDelete ->
                 storage.deleteTransactionById(transactionToDelete.id)
@@ -89,6 +90,7 @@ class Activity3 : AppCompatActivity() {
                 startActivity(intent)
             }
         )
+
 
         recyclerView.adapter = adapter
     }

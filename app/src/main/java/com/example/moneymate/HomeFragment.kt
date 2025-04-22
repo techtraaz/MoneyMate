@@ -1,6 +1,5 @@
 package com.example.moneymate
 
-import android.content.Intent
 import android.os.Bundle
 import android.view.*
 import android.widget.*
@@ -20,6 +19,9 @@ class HomeFragment : Fragment() {
     private lateinit var storage: TransactionStorage
     private lateinit var addbtn: Button
 
+    private lateinit var txtIncome: TextView
+    private lateinit var txtExpense: TextView
+
     private var calendar = Calendar.getInstance()
 
     override fun onCreateView(
@@ -37,6 +39,8 @@ class HomeFragment : Fragment() {
         btnNext = view.findViewById(R.id.btnNext)
         recyclerView = view.findViewById(R.id.recyclerView)
         addbtn = view.findViewById(R.id.btnAddTransaction)
+        txtIncome = view.findViewById(R.id.txtIncome)
+        txtExpense = view.findViewById(R.id.txtExpense)
 
         recyclerView.layoutManager = LinearLayoutManager(requireContext())
         storage = TransactionStorage(requireContext())
@@ -74,17 +78,35 @@ class HomeFragment : Fragment() {
     }
 
     private fun updateTransactionList() {
+        val sdf = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
         val allTransactions = storage.getTransactions()
-        val filtered = allTransactions.filter {
-            val date = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).parse(it.date)
-            val cal = Calendar.getInstance().apply { time = date!! }
-            cal.get(Calendar.MONTH) == calendar.get(Calendar.MONTH) &&
+
+        val filtered = allTransactions.mapNotNull {
+            try {
+                val date = sdf.parse(it.date)
+                val cal = Calendar.getInstance().apply { time = date!! }
+                if (cal.get(Calendar.MONTH) == calendar.get(Calendar.MONTH) &&
                     cal.get(Calendar.YEAR) == calendar.get(Calendar.YEAR)
+                ) {
+                    it
+                } else null
+            } catch (e: Exception) {
+                null
+            }
         }.sortedByDescending {
-            SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).parse(it.date)
+            sdf.parse(it.date)
         }
 
+        // Calculate totals
+        val income = filtered.filter { it.type.equals("income", true) }.sumOf { it.amount }
+        val expense = filtered.filter { it.type.equals("expense", true) }.sumOf { it.amount }
+
+        txtIncome.text = "Rs.%.0f".format(income)
+        txtExpense.text = "Rs.%.0f".format(expense)
+
+        // Set adapter
         adapter = TransactionAdapter(
+            requireContext(),
             filtered,
             onDeleteClick = { transactionToDelete ->
                 storage.deleteTransactionById(transactionToDelete.id)

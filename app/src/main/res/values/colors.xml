@@ -2,4 +2,10 @@
 <resources>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
+    <color name="income">#2563EB</color>
+    <color name="expense">#DC2626</color>
+    <color name="lightblue">#DBEAFE</color>
+    <color name="lightred">#fee2e2</color>
+    <color name="darkblue">#1E40AF</color>
+    <color name="darkred">#991B1B</color>
 </resources>
