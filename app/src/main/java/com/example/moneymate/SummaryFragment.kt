@@ -77,21 +77,27 @@ class SummaryFragment : Fragment() {
 
         val incomeSummary = incomeTransactions.groupBy { it.category }
             .mapValues { it.value.sumOf { t -> t.amount } }
+
         val expenseSummary = expenseTransactions.groupBy { it.category }
             .mapValues { it.value.sumOf { t -> t.amount } }
 
-        // Show income summary
-        if (incomeSummary.isNotEmpty()) {
-            txtIncomeSummary.text = "Income Summary:\n" + incomeSummary.entries.joinToString("\n") { "${it.key}: ${it.value}" }
+        val incomeText = if (incomeSummary.isNotEmpty()) {
+            "" + incomeSummary.entries.joinToString("\n") {
+                "${it.key}: ${it.value}"
+            }
         } else {
-            txtIncomeSummary.text = "No income records"
+            "No income records"
         }
 
-        // Show expense summary
-        if (expenseSummary.isNotEmpty()) {
-            txtExpenseSummary.text = "Expense Summary:\n" + expenseSummary.entries.joinToString("\n") { "${it.key}: ${it.value}" }
+        val expenseText = if (expenseSummary.isNotEmpty()) {
+            "" + expenseSummary.entries.joinToString("\n") {
+                "${it.key}: ${it.value}"
+            }
         } else {
-            txtExpenseSummary.text = "No expense records"
+            "No expense records"
         }
+
+        txtIncomeSummary.text = incomeText
+        txtExpenseSummary.text = expenseText
     }
 }
