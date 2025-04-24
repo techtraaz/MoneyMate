@@ -23,9 +23,9 @@ class MainNav : AppCompatActivity() {
         findViewById<ImageButton>(R.id.nav_summary).setOnClickListener {
             replaceFragment(SummaryFragment())
         }
-//         findViewById<ImageButton>(R.id.nav_budget).setOnClickListener {
-//           replaceFragment(BudgetFragment())
-//       }
+        findViewById<ImageButton>(R.id.nav_budget).setOnClickListener {
+          replaceFragment(BudgetFragment())
+       }
         findViewById<ImageButton>(R.id.nav_settings).setOnClickListener {
             replaceFragment(SettingsFragment())
         }

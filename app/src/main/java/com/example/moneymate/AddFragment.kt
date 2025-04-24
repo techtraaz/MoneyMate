@@ -1,11 +1,19 @@
 package com.example.moneymate
 
+import android.Manifest
 import android.app.DatePickerDialog
+import android.app.NotificationChannel
+import android.app.NotificationManager
+import android.os.Build
 import android.os.Bundle
 import android.view.*
 import android.widget.*
+import androidx.annotation.RequiresPermission
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.app.NotificationCompat
+import androidx.core.app.NotificationManagerCompat
 import androidx.fragment.app.Fragment
+import java.text.SimpleDateFormat
 import java.util.*
 
 class AddFragment : Fragment() {
@@ -23,6 +31,9 @@ class AddFragment : Fragment() {
 
     private var selectedDate = ""
     private var editingId = -1
+
+    private val CHANNEL_ID = "budget_alert_channel"
+    private val NOTIFICATION_ID = 101
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -43,6 +54,7 @@ class AddFragment : Fragment() {
         btnBackToList = view.findViewById(R.id.btnBackToList)
 
         val storage = TransactionStorage(requireContext())
+        createNotificationChannel()
 
         arguments?.let {
             editingId = it.getInt("id", -1)
@@ -129,6 +141,8 @@ class AddFragment : Fragment() {
 
             storage.saveTransactions(transactions)
 
+            checkIfBudgetExceeded(storage)
+
             Toast.makeText(requireContext(), "Transaction saved!", Toast.LENGTH_SHORT).show()
             parentFragmentManager.popBackStack()
         }
@@ -148,5 +162,48 @@ class AddFragment : Fragment() {
         val currentId = prefs.getInt("transaction_id", 0)
         prefs.edit().putInt("transaction_id", currentId + 1).apply()
         return currentId + 1
+    }
+
+    private fun getCurrentMonthYear(): String {
+        val cal = Calendar.getInstance()
+        val sdf = java.text.SimpleDateFormat("MMMM yyyy", Locale.getDefault())
+        return sdf.format(cal.time)
+    }
+
+    @RequiresPermission(Manifest.permission.POST_NOTIFICATIONS)
+    private fun checkIfBudgetExceeded(storage: TransactionStorage) {
+        val monthYear = getCurrentMonthYear()
+        val totalExpense = storage.getTotalExpenseForMonth(monthYear)
+        val budget = storage.getBudgetForMonth(monthYear)
+
+        if (budget > 0 && totalExpense > budget) {
+            showBudgetExceededNotification()
+        }
+    }
+
+    @RequiresPermission(Manifest.permission.POST_NOTIFICATIONS)
+    private fun showBudgetExceededNotification() {
+        val notification = NotificationCompat.Builder(requireContext(), CHANNEL_ID)
+            .setSmallIcon(android.R.drawable.ic_dialog_alert)
+            .setContentTitle("Budget Exceeded!")
+            .setContentText("Your expenses have exceeded the set budget.")
+            .setPriority(NotificationCompat.PRIORITY_HIGH)
+            .setAutoCancel(true)
+            .build()
+
+        NotificationManagerCompat.from(requireContext()).notify(NOTIFICATION_ID, notification)
+    }
+
+    private fun createNotificationChannel() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            val name = "Budget Alerts"
+            val descriptionText = "Notifies when expenses exceed budget"
+            val importance = NotificationManager.IMPORTANCE_HIGH
+            val channel = NotificationChannel(CHANNEL_ID, name, importance).apply {
+                description = descriptionText
+            }
+            val notificationManager = requireContext().getSystemService(NotificationManager::class.java)
+            notificationManager.createNotificationChannel(channel)
+        }
     }
 }

@@ -3,16 +3,45 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:background="@color/white"
-    android:padding="16dp">
+    android:background="@color/white">
 
-    <Button
-        android:id="@+id/btnDownloadJson"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Download Transactions as JSON"
-        android:padding="12dp"
-        android:textSize="16sp" />
+    <!-- Top bar with income color -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="56dp"
+        android:background="@color/income"
+        android:gravity="center_vertical"
+        android:paddingStart="16dp"
+        android:paddingEnd="16dp">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Backup Data"
+            android:textColor="@color/white"
+            android:textSize="18sp"
+            android:textStyle="bold" />
+    </LinearLayout>
+
+    <!-- Main content area -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:padding="16dp">
+
+        <!-- Total Expenses Card -->
 
 
+        <!-- Download Button with Material Design -->
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnDownloadJson"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Download Transactions as JSON"
+            android:textAllCaps="false"
+            android:padding="12dp"
+            android:textSize="16sp"
+            android:layout_marginTop="8dp" />
+    </LinearLayout>
 </LinearLayout>
